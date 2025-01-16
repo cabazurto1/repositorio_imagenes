@@ -1,7 +1,10 @@
+// app.js
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const multer = require('multer'); // Importar Multer para manejar errores
 const imageRoutes = require('./routes/imageRoutes');
 
 const { MONGO_URI, PORT, ADMIN_USER, ADMIN_PASS } = process.env;
@@ -22,7 +25,6 @@ mongoose.connect(MONGO_URI, {
 app.use('/images', imageRoutes);
 
 // RUTA DE LOGIN ADMIN (opcional)
-// Si quieres un login básico para el admin, algo así:
 app.post('/admin/login', (req, res) => {
   const { user, pass } = req.body;
   if (user === ADMIN_USER && pass === ADMIN_PASS) {
@@ -31,6 +33,18 @@ app.post('/admin/login', (req, res) => {
   } else {
     return res.status(401).json({ error: 'Credenciales inválidas' });
   }
+});
+
+// Manejar errores globales
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    // Errores específicos de Multer
+    return res.status(400).json({ error: err.message });
+  } else if (err) {
+    console.error("Error Global:", err.stack);
+    return res.status(500).json({ error: "Algo salió mal en el servidor." });
+  }
+  next();
 });
 
 // Levantar servidor
