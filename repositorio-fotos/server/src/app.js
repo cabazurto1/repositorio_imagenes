@@ -10,10 +10,18 @@ const imageRoutes = require('./routes/imageRoutes');
 const { MONGO_URI, PORT, ADMIN_USER, ADMIN_PASS } = process.env;
 
 const app = express();
-app.use(cors());
+
+// Configuración de CORS
+app.use(cors({
+  origin: 'http://localhost:3000', // Ajustar al origen del frontend
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'], // Permitir encabezados necesarios
+}));
+
+// Middleware para parsear JSON
 app.use(express.json());
 
-// Conexión a la BD
+// Conexión a la base de datos
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -21,21 +29,21 @@ mongoose.connect(MONGO_URI, {
 .then(() => console.log('Conectado a MongoDB'))
 .catch(err => console.error('Error al conectar a MongoDB:', err));
 
-// Rutas
+// Rutas para imágenes
 app.use('/images', imageRoutes);
 
-// RUTA DE LOGIN ADMIN (opcional)
+// Ruta opcional para login de administrador
 app.post('/admin/login', (req, res) => {
   const { user, pass } = req.body;
   if (user === ADMIN_USER && pass === ADMIN_PASS) {
-    // Generar un token de sesión si quieres
+    // Simular un token de sesión (puedes usar JWT en proyectos reales)
     return res.json({ message: 'Login exitoso', token: 'fake-token' });
   } else {
     return res.status(401).json({ error: 'Credenciales inválidas' });
   }
 });
 
-// Manejar errores globales
+// Manejo global de errores
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     // Errores específicos de Multer
@@ -48,6 +56,7 @@ app.use((err, req, res, next) => {
 });
 
 // Levantar servidor
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
+const port = PORT || 4000;
+app.listen(port, () => {
+  console.log(`Servidor escuchando en puerto ${port}`);
 });

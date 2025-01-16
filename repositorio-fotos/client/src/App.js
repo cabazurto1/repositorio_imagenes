@@ -6,53 +6,52 @@ const App = () => {
   const [approvedImages, setApprovedImages] = useState([]);
   const [pendingImages, setPendingImages] = useState([]);
 
-  // Cargar imágenes al inicio
   useEffect(() => {
     fetchApprovedImages();
     fetchPendingImages();
   }, []);
 
-  // Obtener imágenes aprobadas
   const fetchApprovedImages = async () => {
     try {
       const response = await fetch("http://localhost:4000/images");
       if (!response.ok) throw new Error("Error al obtener imágenes aprobadas.");
       const data = await response.json();
-      setApprovedImages(data || []); // Asegúrate de que sea un array
+      setApprovedImages(data || []);
     } catch (error) {
       console.error("Error fetching approved images:", error);
       setApprovedImages([]);
     }
   };
 
-  // Obtener imágenes pendientes
   const fetchPendingImages = async () => {
     try {
       const response = await fetch("http://localhost:4000/images?status=pending");
       if (!response.ok) throw new Error("Error al obtener imágenes pendientes.");
       const data = await response.json();
-      setPendingImages(data || []); // Asegúrate de que sea un array
+      setPendingImages(data || []);
     } catch (error) {
       console.error("Error fetching pending images:", error);
       setPendingImages([]);
     }
   };
 
-  // Manejar selección de archivo
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setMessage("");
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      const previewUrl = URL.createObjectURL(selectedFile);
+      setFile({ file: selectedFile, preview: previewUrl });
+      setMessage("");
+    }
   };
 
-  // Subir imagen
   const handleUpload = async () => {
-    if (!file) {
+    if (!file || !file.file) {
       setMessage("Por favor selecciona un archivo.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("image", file.file);
 
     try {
       const response = await fetch("http://localhost:4000/images/upload", {
@@ -64,7 +63,7 @@ const App = () => {
       if (response.ok) {
         setMessage("Imagen subida correctamente. Pendiente de aprobación.");
         setFile(null);
-        await fetchPendingImages(); // Actualizar imágenes pendientes
+        await fetchPendingImages();
       } else {
         setMessage(data.error || "Error al subir la imagen.");
       }
@@ -74,35 +73,41 @@ const App = () => {
     }
   };
 
-  // Aprobar o rechazar imagen
   const updateImageStatus = async (id, status) => {
     try {
       const response = await fetch(`http://localhost:4000/images/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Basic " + btoa("admin:admin123"), // Credenciales básicas
+          Authorization: "Basic " + btoa("admin:admin123"),
         },
         body: JSON.stringify({ status }),
       });
-
+  
       if (response.ok) {
         setMessage(`Imagen ${status === "approved" ? "aprobada" : "rechazada"} correctamente.`);
-        await fetchPendingImages(); // Actualizar lista de pendientes
-        await fetchApprovedImages(); // Actualizar lista de aprobadas
+        await Promise.all([fetchPendingImages(), fetchApprovedImages()]);
       } else {
         const data = await response.json();
         setMessage(data.error || "Error al actualizar la imagen.");
       }
     } catch (error) {
-      console.error("Error al actualizar imagen:", error);
-      setMessage("Error al actualizar la imagen.");
+      setMessage("Error al actualizar la imagen. Verifica la conexión al servidor.");
+      console.error(error);
     }
   };
+  
+
+  useEffect(() => {
+    return () => {
+      if (file?.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+    };
+  }, [file]);
 
   return (
     <div className="container">
-      {/* Subida de imágenes */}
       <div className="upload-box">
         <h1>
           <i className="fas fa-cloud-upload-alt"></i> Subir Imagen
@@ -111,7 +116,13 @@ const App = () => {
           <input type="file" id="file" onChange={handleFileChange} />
           <label htmlFor="file">Seleccionar Archivo</label>
         </div>
-        {file && <p className="file-name">{file.name}</p>}
+        {file && file.preview && (
+          <img
+            src={file.preview}
+            alt="Previsualización"
+            style={{ maxWidth: "100%", margin: "10px 0" }}
+          />
+        )}
         <button className="upload-button" onClick={handleUpload}>
           <i className="fas fa-upload"></i> Subir
         </button>
@@ -122,7 +133,6 @@ const App = () => {
         )}
       </div>
 
-      {/* Lista de imágenes aprobadas */}
       <div className="upload-box">
         <h1>Imágenes Aprobadas</h1>
         {approvedImages.length > 0 ? (
@@ -151,7 +161,6 @@ const App = () => {
         )}
       </div>
 
-      {/* Lista de imágenes pendientes */}
       <div className="upload-box">
         <h1>Imágenes Pendientes</h1>
         {pendingImages.length > 0 ? (
