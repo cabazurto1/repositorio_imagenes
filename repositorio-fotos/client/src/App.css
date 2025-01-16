@@ -1,122 +1,247 @@
-body {
-    margin: 0;
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #89cff0, #ffffff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-  
-  .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-  }
-  
-  .upload-box {
-    background: linear-gradient(135deg, #ffffff, #f0f0f5);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 400px;
-    width: 100%;
-    animation: fadeIn 1s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  h1 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-    color: #333333;
-  }
-  
-  h1 i {
-    color: #007bff;
-    margin-right: 0.5rem;
-  }
-  
-  .file-input {
-    margin-bottom: 1rem;
-  }
-  
-  .file-input input {
-    display: none;
-  }
-  
-  .file-input label {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    display: inline-block;
-  }
-  
-  .file-input label:hover {
-    background: linear-gradient(135deg, #0056b3, #003c82);
-  }
-  
-  .upload-button {
-    background: linear-gradient(135deg, #28a745, #218838);
-    color: white;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .upload-button i {
-    margin-right: 0.5rem;
-  }
-  
-  .upload-button:hover {
-    background: linear-gradient(135deg, #218838, #19692c);
-  }
-  
-  .message {
-    font-size: 1rem;
-    margin-top: 1rem;
-    text-align: center;
-  }
-  
-  .message.error {
-    color: #ff4d4f;
-    font-weight: bold;
-    background-color: #ffe6e6;
-    padding: 0.5rem;
-    border-radius: 5px;
-  }
-  
-  .message.success {
-    color: #28a745;
-    font-weight: bold;
-    background-color: #e6ffe6;
-    padding: 0.5rem;
-    border-radius: 5px;
-  }
- 
-  .file-name {
-    font-size: 0.9rem;
-    color: #555;
-    margin-top: 0.5rem;
-    font-style: italic;
-  }
-  
+/* Estructura base */
+.app-container {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(90deg, #f3f4f6, #e8eaf6);
+  color: #333;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header */
+.header {
+  background: #007bff;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+/* Sección del carrusel */
+.carousel-section {
+  margin: 0 auto 30px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  max-width: 90%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.carousel-section h2 {
+  margin-bottom: 20px;
+}
+
+.carousel-image {
+  padding: 0 10px; /* Espacio horizontal entre imágenes */
+}
+
+.carousel-img {
+  border-radius: 10px;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.no-images {
+  margin: 10px 0;
+}
+
+/* Flechas personalizadas del carrusel */
+.custom-slick-arrow {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+  font-size: 18px;
+  line-height: 1;
+  opacity: 0.8;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* Al pasar el mouse */
+.custom-slick-arrow:hover {
+  opacity: 1;
+}
+
+.custom-slick-prev {
+  left: -15px; /* Ajusta según tu diseño */
+}
+
+.custom-slick-next {
+  right: -15px; /* Ajusta según tu diseño */
+}
+
+/* Quita el ícono default de slick */
+.slick-prev::before,
+.slick-next::before {
+  display: none;
+}
+
+/* Contenido principal */
+.main-content {
+  display: flex;
+  justify-content: space-around;
+  padding: 0 20px 40px 20px;
+  gap: 20px;
+}
+
+.upload-box,
+.pending-images {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  width: 45%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.upload-box h2,
+.pending-images h2 {
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+/* Botón para seleccionar archivo */
+.single-upload-button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-block;
+  margin-bottom: 15px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.single-upload-button:hover {
+  background-color: #0056b3;
+}
+
+/* Input de archivo oculto */
+.file-input {
+  display: none;
+}
+
+/* Previsualización */
+.preview-img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  margin: 20px 0;
+  border-radius: 10px;
+}
+
+/* Botón para subir la imagen */
+.upload-button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 50%;
+  font-weight: bold;
+}
+.upload-button:hover {
+  opacity: 0.9;
+}
+
+/* Botones de aprobar/rechazar */
+.approve-button,
+.reject-button {
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+  width: 40%;
+  font-weight: bold;
+  transition: opacity 0.3s ease;
+}
+
+.approve-button {
+  background-color: #28a745;
+}
+
+.reject-button {
+  background-color: #dc3545;
+}
+
+.approve-button:hover,
+.reject-button:hover {
+  opacity: 0.9;
+}
+
+/* Mensajes de error/éxito */
+.message {
+  font-size: 14px;
+  margin-top: 10px;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.popup-content p {
+  margin-bottom: 20px;
+}
+
+.confirm-button,
+.cancel-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.cancel-button {
+  background-color: #dc3545;
+}
+
+.confirm-button:hover,
+.cancel-button:hover {
+  opacity: 0.9;
+}
