@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
 import "./App.css";
 
-// Custom arrow components
+// Arrow components optimizados con lambda functions
 const SampleNextArrow = ({ className, style, onClick }) => (
   <div
     className={`${className} custom-slick-arrow custom-slick-next`}
@@ -24,18 +24,46 @@ const SamplePrevArrow = ({ className, style, onClick }) => (
 );
 
 const App = () => {
+  // Estados
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [approvedImages, setApprovedImages] = useState([]);
   const [pendingImages, setPendingImages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Configuración base para fetch
+  const BASE_URL = "http://localhost:4000";
+  const headers = {
+    Authorization: `Basic ${btoa("admin:admin123")}`,
+  };
+
+  // Funciones fetch optimizadas
+  const fetchData = async (endpoint, options = {}) => {
+    try {
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
+        ...options,
+        headers: {
+          ...options.headers,
+          ...headers,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error(`Error fetching from ${endpoint}:`, error);
+      throw error;
+    }
+  };
+
+  // Fetch de imágenes aprobadas
   const fetchApprovedImages = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:4000/images");
-      if (!response.ok) throw new Error("Error al obtener imágenes aprobadas.");
-      const data = await response.json();
+      const data = await fetchData("/images");
       setApprovedImages(data ?? []);
     } catch (error) {
       console.error("Error fetching approved images:", error);
@@ -45,13 +73,10 @@ const App = () => {
     }
   };
 
+  // Fetch de imágenes pendientes
   const fetchPendingImages = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:4000/images?status=pending"
-      );
-      if (!response.ok) throw new Error("Error al obtener imágenes pendientes.");
-      const data = await response.json();
+      const data = await fetchData("/images?status=pending");
       setPendingImages(data ?? []);
     } catch (error) {
       console.error("Error fetching pending images:", error);
@@ -59,27 +84,7 @@ const App = () => {
     }
   };
 
-  useEffect(() => {
-    Promise.all([fetchApprovedImages(), fetchPendingImages()]);
-    
-    // Cleanup function
-    return () => {
-      if (file?.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
-    };
-  }, []);
-
-  const handleFileChange = (e) => {
-    if (e.target.files?.[0]) {
-      const selectedFile = e.target.files[0];
-      const previewUrl = URL.createObjectURL(selectedFile);
-      setFile({ file: selectedFile, preview: previewUrl });
-      setMessage("");
-    }
-    e.target.value = null;
-  };
-
+  // Función para subir imagen
   const handleUpload = async () => {
     if (!file?.file) {
       setMessage("Por favor selecciona un archivo.");
@@ -90,51 +95,61 @@ const App = () => {
     formData.append("image", file.file);
 
     try {
-      const response = await fetch("http://localhost:4000/images/upload", {
+      const data = await fetchData("/images/upload", {
         method: "POST",
         body: formData,
+        headers: {}, // Override default headers for FormData
       });
-      const data = await response.json();
-
-      if (response.ok) {
-        setMessage("Imagen subida correctamente. Pendiente de aprobación.");
-        setFile(null);
-        await fetchPendingImages();
-      } else {
-        setMessage(data.error ?? "Error al subir la imagen.");
-      }
+      
+      setMessage("Imagen subida correctamente. Pendiente de aprobación.");
+      setFile(null);
+      await fetchPendingImages();
     } catch (error) {
-      console.error("Upload error:", error);
       setMessage("Error al subir la imagen.");
     }
   };
 
+  // Función para actualizar estado de imagen
   const updateImageStatus = async (id, status) => {
     try {
-      const response = await fetch(`http://localhost:4000/images/${id}`, {
+      await fetchData(`/images/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Basic ${btoa("admin:admin123")}`,
         },
         body: JSON.stringify({ status }),
       });
 
-      if (response.ok) {
-        setMessage(
-          `Imagen ${status === "approved" ? "aprobada" : "rechazada"} correctamente.`
-        );
-        await Promise.all([fetchPendingImages(), fetchApprovedImages()]);
-      } else {
-        const data = await response.json();
-        setMessage(data.error ?? "Error al actualizar la imagen.");
-      }
+      setMessage(`Imagen ${status === "approved" ? "aprobada" : "rechazada"} correctamente.`);
+      await Promise.all([fetchPendingImages(), fetchApprovedImages()]);
     } catch (error) {
-      console.error("Status update error:", error);
       setMessage("Error al actualizar la imagen. Verifica la conexión al servidor.");
     }
   };
 
+  // Manejador de cambio de archivo optimizado
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      const previewUrl = URL.createObjectURL(selectedFile);
+      setFile({ file: selectedFile, preview: previewUrl });
+      setMessage("");
+    }
+    e.target.value = null;
+  };
+
+  // Effect para cargar datos iniciales
+  useEffect(() => {
+    Promise.all([fetchApprovedImages(), fetchPendingImages()]);
+    
+    return () => {
+      if (file?.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+    };
+  }, []);
+
+  // Configuración del slider optimizada
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -158,6 +173,17 @@ const App = () => {
     ]
   };
 
+  // Función helper para convertir buffer a base64
+  const bufferToBase64 = (buffer) => {
+    if (!buffer?.data) return "";
+    return btoa(
+      new Uint8Array(buffer.data).reduce(
+        (data, byte) => data + String.fromCharCode(byte),
+        ""
+      )
+    );
+  };
+
   if (isLoading) {
     return <div className="loading">Cargando...</div>;
   }
@@ -172,26 +198,15 @@ const App = () => {
         <h2>Imágenes Aprobadas</h2>
         {approvedImages.length > 0 ? (
           <Slider {...sliderSettings}>
-            {approvedImages.map((image) => {
-              const buffer = image.buffer?.data ?? [];
-              const base64String = buffer.length
-                ? btoa(
-                    new Uint8Array(buffer).reduce(
-                      (data, byte) => data + String.fromCharCode(byte),
-                      ""
-                    )
-                  )
-                : "";
-              return (
-                <div key={image._id} className="carousel-image">
-                  <img
-                    src={`data:${image.mimetype};base64,${base64String}`}
-                    alt={image.originalname}
-                    className="carousel-img"
-                  />
-                </div>
-              );
-            })}
+            {approvedImages.map((image) => (
+              <div key={image._id} className="carousel-image">
+                <img
+                  src={`data:${image.mimetype};base64,${bufferToBase64(image.buffer)}`}
+                  alt={image.originalname}
+                  className="carousel-img"
+                />
+              </div>
+            ))}
           </Slider>
         ) : (
           <p className="no-images">No hay imágenes aprobadas todavía.</p>
@@ -231,11 +246,7 @@ const App = () => {
           )}
 
           {message && (
-            <p
-              className={`message ${
-                message.includes("Error") ? "error" : "success"
-              }`}
-            >
+            <p className={`message ${message.includes("Error") ? "error" : "success"}`}>
               {message}
             </p>
           )}
