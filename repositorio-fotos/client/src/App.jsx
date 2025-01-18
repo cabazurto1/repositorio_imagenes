@@ -1,62 +1,50 @@
 import React, { useState, useEffect } from "react";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import "./App.css";
 
-// Flecha personalizada: Next
-const SampleNextArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div
-      className={`${className} custom-slick-arrow custom-slick-next`}
-      style={{ ...style }}
-      onClick={onClick}
-    >
-      &gt;
-    </div>
-  );
-};
+// Custom arrow components
+const SampleNextArrow = ({ className, style, onClick }) => (
+  <div
+    className={`${className} custom-slick-arrow custom-slick-next`}
+    style={style}
+    onClick={onClick}
+  >
+    &gt;
+  </div>
+);
 
-// Flecha personalizada: Prev
-const SamplePrevArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div
-      className={`${className} custom-slick-arrow custom-slick-prev`}
-      style={{ ...style }}
-      onClick={onClick}
-    >
-      &lt;
-    </div>
-  );
-};
+const SamplePrevArrow = ({ className, style, onClick }) => (
+  <div
+    className={`${className} custom-slick-arrow custom-slick-prev`}
+    style={style}
+    onClick={onClick}
+  >
+    &lt;
+  </div>
+);
 
 const App = () => {
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [approvedImages, setApprovedImages] = useState([]);
   const [pendingImages, setPendingImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchApprovedImages();
-    fetchPendingImages();
-  }, []);
-
-  // Obtener imágenes aprobadas
   const fetchApprovedImages = async () => {
     try {
+      setIsLoading(true);
       const response = await fetch("http://localhost:4000/images");
       if (!response.ok) throw new Error("Error al obtener imágenes aprobadas.");
       const data = await response.json();
-      setApprovedImages(data || []);
+      setApprovedImages(data ?? []);
     } catch (error) {
       console.error("Error fetching approved images:", error);
       setApprovedImages([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Obtener imágenes pendientes
   const fetchPendingImages = async () => {
     try {
       const response = await fetch(
@@ -64,30 +52,36 @@ const App = () => {
       );
       if (!response.ok) throw new Error("Error al obtener imágenes pendientes.");
       const data = await response.json();
-      setPendingImages(data || []);
+      setPendingImages(data ?? []);
     } catch (error) {
       console.error("Error fetching pending images:", error);
       setPendingImages([]);
     }
   };
 
-  // Manejar la selección de archivo
+  useEffect(() => {
+    Promise.all([fetchApprovedImages(), fetchPendingImages()]);
+    
+    // Cleanup function
+    return () => {
+      if (file?.preview) {
+        URL.revokeObjectURL(file.preview);
+      }
+    };
+  }, []);
+
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files.length > 0) {
+    if (e.target.files?.[0]) {
       const selectedFile = e.target.files[0];
       const previewUrl = URL.createObjectURL(selectedFile);
-
       setFile({ file: selectedFile, preview: previewUrl });
       setMessage("");
     }
-
-    // Resetea el input para que el usuario pueda volver a seleccionar la misma foto
     e.target.value = null;
   };
 
-  // Subir imagen al servidor
   const handleUpload = async () => {
-    if (!file || !file.file) {
+    if (!file?.file) {
       setMessage("Por favor selecciona un archivo.");
       return;
     }
@@ -107,55 +101,40 @@ const App = () => {
         setFile(null);
         await fetchPendingImages();
       } else {
-        setMessage(data.error || "Error al subir la imagen.");
+        setMessage(data.error ?? "Error al subir la imagen.");
       }
     } catch (error) {
+      console.error("Upload error:", error);
       setMessage("Error al subir la imagen.");
-      console.error(error);
     }
   };
 
-  // Aprobar o rechazar imagen
   const updateImageStatus = async (id, status) => {
     try {
       const response = await fetch(`http://localhost:4000/images/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Basic " + btoa("admin:admin123"),
+          Authorization: `Basic ${btoa("admin:admin123")}`,
         },
         body: JSON.stringify({ status }),
       });
 
       if (response.ok) {
         setMessage(
-          `Imagen ${
-            status === "approved" ? "aprobada" : "rechazada"
-          } correctamente.`
+          `Imagen ${status === "approved" ? "aprobada" : "rechazada"} correctamente.`
         );
         await Promise.all([fetchPendingImages(), fetchApprovedImages()]);
       } else {
         const data = await response.json();
-        setMessage(data.error || "Error al actualizar la imagen.");
+        setMessage(data.error ?? "Error al actualizar la imagen.");
       }
     } catch (error) {
-      setMessage(
-        "Error al actualizar la imagen. Verifica la conexión al servidor."
-      );
-      console.error(error);
+      console.error("Status update error:", error);
+      setMessage("Error al actualizar la imagen. Verifica la conexión al servidor.");
     }
   };
 
-  // Liberar la URL de previsualización al desmontar
-  useEffect(() => {
-    return () => {
-      if (file?.preview) {
-        URL.revokeObjectURL(file.preview);
-      }
-    };
-  }, [file]);
-
-  // Configuración del carrusel
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -168,7 +147,20 @@ const App = () => {
     autoplaySpeed: 2500,
     nextArrow: <SampleNextArrow />,
     prevArrow: <SamplePrevArrow />,
+    responsive: [
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          centerPadding: "20px",
+        }
+      }
+    ]
   };
+
+  if (isLoading) {
+    return <div className="loading">Cargando...</div>;
+  }
 
   return (
     <div className="app-container">
@@ -181,7 +173,7 @@ const App = () => {
         {approvedImages.length > 0 ? (
           <Slider {...sliderSettings}>
             {approvedImages.map((image) => {
-              const buffer = image.buffer?.data || [];
+              const buffer = image.buffer?.data ?? [];
               const base64String = buffer.length
                 ? btoa(
                     new Uint8Array(buffer).reduce(
@@ -209,10 +201,7 @@ const App = () => {
       <main className="main-content">
         <div className="upload-box">
           <h2>Subir Imagen</h2>
-
-          {/* Contenedor para los dos botones */}
           <div className="upload-actions">
-            {/* Botón de seleccionar archivo */}
             <label htmlFor="file" className="button same-size-button">
               Seleccionar imagen
               <input
@@ -220,21 +209,27 @@ const App = () => {
                 id="file"
                 className="file-input"
                 onChange={handleFileChange}
+                accept="image/*"
               />
             </label>
 
-            {/* Botón de subir */}
-            <button onClick={handleUpload} className="button same-size-button">
+            <button 
+              onClick={handleUpload} 
+              className="button same-size-button"
+              disabled={!file}
+            >
               Subir
             </button>
           </div>
 
-          {/* Vista previa de la imagen */}
-          {file && file.preview && (
-            <img src={file.preview} alt="Previsualización" className="preview-img" />
+          {file?.preview && (
+            <img 
+              src={file.preview} 
+              alt="Previsualización" 
+              className="preview-img" 
+            />
           )}
 
-          {/* Mensaje de éxito o error */}
           {message && (
             <p
               className={`message ${

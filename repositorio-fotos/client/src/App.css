@@ -1,129 +1,164 @@
+/* Reset básico y estilos globales */
+:root {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
 /* Estructura base */
 .app-container {
   font-family: 'Arial', sans-serif;
   background: linear-gradient(90deg, #f3f4f6, #e8eaf6);
   color: #333;
   min-height: 100vh;
-  margin: 0;
-  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
 .header {
   background: #007bff;
   color: white;
-  padding: 20px;
+  padding: 1.25rem;
   text-align: center;
-  font-size: 24px;
-  margin-bottom: 30px;
+  font-size: 1.5rem;
+  margin-bottom: 1.875rem;
+}
+
+.header h1 {
+  margin: 0;
 }
 
 /* Sección del carrusel */
 .carousel-section {
-  margin: 0 auto 30px auto;
-  padding: 20px;
+  margin: 0 auto 1.875rem;
+  padding: 1.25rem;
   background: white;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   max-width: 90%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
   text-align: center;
 }
 
 .carousel-section h2 {
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
+/* Ajustes del carrusel */
 .carousel-image {
-  padding: 0 10px; /* Espacio horizontal entre imágenes */
+  padding: 0 0.625rem;
 }
 
 .carousel-img {
-  border-radius: 10px;
+  border-radius: 0.625rem;
   width: 100%;
-  height: 200px;
+  height: 12.5rem;
   object-fit: cover;
 }
 
 .no-images {
-  margin: 10px 0;
+  margin: 0.625rem 0;
+  color: #666;
 }
 
-/* Flechas personalizadas del carrusel */
+/* Flechas del carrusel */
 .custom-slick-arrow {
   display: flex !important;
   align-items: center;
   justify-content: center;
-  width: 35px;
-  height: 35px;
-  background-color: #007bff;
-  color: #fff;
+  width: 2.188rem;
+  height: 2.188rem;
+  background-color: #007bff !important;
+  color: #fff !important;
   border-radius: 50%;
   cursor: pointer;
   z-index: 2;
-  font-size: 18px;
-  line-height: 1;
+  font-size: 1.125rem;
   opacity: 0.8;
   transition: opacity 0.2s ease-in-out;
 }
 
-/* Al pasar el mouse */
 .custom-slick-arrow:hover {
   opacity: 1;
 }
 
 .custom-slick-prev {
-  left: -15px; /* Ajusta según tu diseño */
+  left: -0.938rem !important;
 }
 
 .custom-slick-next {
-  right: -15px; /* Ajusta según tu diseño */
+  right: -0.938rem !important;
 }
 
-/* Quita el ícono default de slick */
+/* Desactivar flechas por defecto de Slick */
 .slick-prev::before,
 .slick-next::before {
-  display: none;
+  display: none !important;
 }
 
 /* Contenido principal */
 .main-content {
   display: flex;
   justify-content: space-around;
-  padding: 0 20px 40px 20px;
-  gap: 20px;
+  padding: 0 1.25rem 2.5rem;
+  gap: 1.25rem;
+  flex: 1;
 }
 
+/* Contenedores de carga y pendientes */
 .upload-box,
 .pending-images {
   background: white;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 0.625rem;
+  padding: 1.25rem;
   width: 45%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
   text-align: center;
 }
 
+/* Títulos de secciones */
 .upload-box h2,
 .pending-images h2 {
   color: #007bff;
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
-/* Botón para seleccionar archivo */
-.single-upload-button {
+/* Área de upload */
+.upload-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  align-items: center;
+}
+
+/* Botones uniformes */
+.button {
   background-color: #007bff;
   color: white;
-  padding: 12px 25px;
-  border-radius: 5px;
+  padding: 0.75rem 1.563rem;
+  border-radius: 0.313rem;
   cursor: pointer;
-  display: inline-block;
-  margin-bottom: 15px;
+  border: none;
   font-weight: bold;
   transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 12.5rem;
 }
 
-.single-upload-button:hover {
+.button:hover {
   background-color: #0056b3;
+}
+
+.same-size-button {
+  width: 100%;
+  max-width: 12.5rem;
+  margin: 0.313rem 0;
 }
 
 /* Input de archivo oculto */
@@ -131,40 +166,24 @@
   display: none;
 }
 
-/* Previsualización */
+/* Previsualización de imagen */
 .preview-img {
   width: 100%;
-  max-height: 180px;
+  max-height: 11.25rem;
   object-fit: cover;
-  margin: 20px 0;
-  border-radius: 10px;
-}
-
-/* Botón para subir la imagen */
-.upload-button {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 20px;
-  margin-top: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 50%;
-  font-weight: bold;
-}
-.upload-button:hover {
-  opacity: 0.9;
+  margin: 1.25rem 0;
+  border-radius: 0.625rem;
 }
 
 /* Botones de aprobar/rechazar */
 .approve-button,
 .reject-button {
   color: white;
-  padding: 10px 15px;
+  padding: 0.625rem 0.938rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 0.313rem;
   cursor: pointer;
-  margin: 5px;
+  margin: 0.313rem;
   width: 40%;
   font-weight: bold;
   transition: opacity 0.3s ease;
@@ -183,12 +202,12 @@
   opacity: 0.9;
 }
 
-/* Mensajes de error/éxito */
+/* Mensajes de estado */
 .message {
-  font-size: 14px;
-  margin-top: 10px;
-  padding: 5px;
-  border-radius: 5px;
+  font-size: 0.875rem;
+  margin-top: 0.625rem;
+  padding: 0.313rem;
+  border-radius: 0.313rem;
 }
 
 .message.success {
@@ -200,6 +219,8 @@
   background-color: #f8d7da;
   color: #721c24;
 }
+
+/* Popup de confirmación */
 .popup {
   position: fixed;
   top: 0;
@@ -210,29 +231,30 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .popup-content {
   background: white;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 1.25rem;
+  border-radius: 0.625rem;
   text-align: center;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  width: 18.75rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.3);
 }
 
 .popup-content p {
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 }
 
 .confirm-button,
 .cancel-button {
   background-color: #007bff;
   color: white;
-  padding: 10px 20px;
-  margin: 5px;
+  padding: 0.625rem 1.25rem;
+  margin: 0.313rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 0.313rem;
   cursor: pointer;
   font-weight: bold;
 }
@@ -244,4 +266,17 @@
 .confirm-button:hover,
 .cancel-button:hover {
   opacity: 0.9;
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .upload-box,
+  .pending-images {
+    width: 90%;
+  }
 }
