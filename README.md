@@ -1,4 +1,4 @@
-# repositorio_IMG
+# Sistema PIMAGE
 
 Este proyecto es un **repositorio de imágenes** que permite a usuarios subir fotos sin autenticación, y a un administrador aprobar o rechazar dichas imágenes. La aplicación está compuesta por un **backend** (Node + Express), una **base de datos** (MongoDB) y un **frontend** (React + Nginx), todo orquestado con **Docker Compose**.
 
@@ -6,8 +6,8 @@ Este proyecto es un **repositorio de imágenes** que permite a usuarios subir fo
 
 # Estructura del Proyecto: Repositorio de Fotos
 
-proyecto:
-  descripcion: >
+Proyecto:
+  Descripcion: >
     Este proyecto está dividido en dos partes principales: Frontend (client) y Backend (server).
     A continuación, se detalla la estructura de los directorios y archivos.
 ```
@@ -73,7 +73,7 @@ proyecto:
       - .gitignore: Archivos/Directorios ignorados por Git
 ```
 
-caracteristicas:
+## Caracteristicas:
   - Frontend: >
       Desarrollado con React para gestionar la interacción del usuario.
   - Backend: >
