@@ -1,6 +1,4 @@
-// models/Image.js
-
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const ImageSchema = new mongoose.Schema({
   originalname: {
@@ -25,13 +23,17 @@ const ImageSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending',
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  alias: {
+    type: String, // Campo para almacenar el alias del usuario
+    required: true,
+  },
 });
 
-module.exports = mongoose.model('Image', ImageSchema);
+module.exports = mongoose.model("Image", ImageSchema);

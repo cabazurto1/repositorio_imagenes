@@ -1,23 +1,19 @@
-// middlewares/authMiddleware.js
+const jwt = require("jsonwebtoken");
+const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 
-const authenticateAdmin = (req, res, next) => {
+const authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.split(" ")[1];
 
-  if (!authHeader || !authHeader.startsWith("Basic ")) {
-    return res.status(401).json({ error: "No autorizado" });
+  if (!token) {
+    return res.status(401).json({ error: "Token no proporcionado" });
   }
 
-  // Decodificar credenciales
-  const base64Credentials = authHeader.split(" ")[1];
-  const credentials = Buffer.from(base64Credentials, "base64").toString("ascii");
-  const [username, password] = credentials.split(":");
-
-  // Validar credenciales
-  if (username === "admin" && password === "admin123") {
-    next(); // Credenciales correctas
-  } else {
-    return res.status(401).json({ error: "No autorizado" });
-  }
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) return res.status(403).json({ error: "Token inválido" });
+    req.user = user;
+    next();
+  });
 };
 
-module.exports = { authenticateAdmin };
+module.exports = { authenticateToken };

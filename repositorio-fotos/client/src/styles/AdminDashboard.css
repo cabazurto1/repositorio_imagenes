@@ -1,0 +1,170 @@
+/* Contenedor principal */
+.dashboard-container {
+    padding: 2rem;
+    font-family: "Poppins", sans-serif;
+    background-color: #f9f9f9;
+  }
+  
+  /* Header del dashboard */
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .dashboard-header h2 {
+    font-size: 2rem;
+    color: #333;
+  }
+  
+  .button {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    color: white;
+    transition: background-color 0.3s;
+  }
+  
+  .button.button-danger {
+    background: #dc3545;
+  }
+  
+  .button.button-danger:hover {
+    background: #c82333;
+  }
+  
+  .button.button-success {
+    background: #28a745;
+  }
+  
+  .button.button-success:hover {
+    background: #218838;
+  }
+  
+  /* Carrusel de imágenes aprobadas */
+  .approved-section {
+    margin-bottom: 3rem;
+  }
+  
+  .approved-section h3 {
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+  }
+  
+  .no-approved-images {
+    text-align: center;
+    font-size: 1rem;
+    color: #888;
+  }
+  
+  /* Sección de imágenes pendientes */
+  .pending-section h3 {
+    font-size: 1.5rem;
+    color: #ff6f61;
+    margin-bottom: 1rem;
+  }
+  
+  .image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .image-card {
+    background: white;
+    border-radius: 0.8rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    text-align: center;
+    transition: transform 0.3s;
+  }
+  
+  .image-card:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Miniatura de la imagen */
+  .image-preview {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+  }
+  
+  /* Nombre de la imagen */
+  .image-name {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1rem;
+  }
+  
+  /* Botones */
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  
+  .button-group .button {
+    flex: 1;
+  }
+  
+  /* Mensajes */
+  .error-message {
+    color: #dc3545;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .no-pending-images {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #888;
+  }
+  
+  /* Footer */
+  .dashboard-footer {
+    margin-top: 2rem;
+    text-align: center;
+  }
+  
+  .dashboard-footer .link {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 1rem;
+  }
+  
+  .dashboard-footer .link:hover {
+    text-decoration: underline;
+  }
+
+  /* Dialogo de eliminación */
+.delete-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 1000;
+  }
+  
+  .delete-dialog p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .delete-dialog .button {
+    margin: 0.5rem;
+  }
+  

@@ -1,38 +1,135 @@
-// controllers/imageController.js
-
 const Image = require("../models/Image");
 const fs = require("fs");
 const path = require("path");
+const sharp = require("sharp");
+const { exiftool } = require("exiftool-vendored");
 
-// Subir imagen (solo guarda metadata y buffer en la base de datos)
 exports.uploadImage = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No se ha proporcionado ninguna imagen." });
-    }
-    console.log("Archivo recibido:", req.file);
+    console.log("Iniciando proceso de subida de imagen");
+    console.log("Request body:", req.body);
+    console.log("Request file:", req.file);
 
-    // Crea la imagen en la base de datos
+    const { alias } = req.body;
+
+    // Validación básica
+    if (!req.file) {
+      return res.status(400).json({ 
+        error: "No se ha proporcionado ninguna imagen.",
+        details: "El archivo es requerido"
+      });
+    }
+
+    if (!alias || alias.trim() === "") {
+      return res.status(400).json({ 
+        error: "El alias es obligatorio.",
+        details: "Se requiere un alias para la imagen"
+      });
+    }
+
+    // Validación básica del archivo
+    const validationResult = await validateImage(req.file);
+    if (!validationResult.isValid) {
+      return res.status(400).json({
+        error: "La imagen no cumple con los requisitos.",
+        details: validationResult.errors
+      });
+    }
+
+    // Crear la imagen en la base de datos
     const newImage = await Image.create({
-      originalname: req.file.originalname, // nombre original
-      filename: req.file.originalname,     // lo podemos sobreescribir luego
+      originalname: req.file.originalname,
+      filename: req.file.originalname,
       mimetype: req.file.mimetype,
       size: req.file.size,
-      buffer: req.file.buffer,            
-      status: "pending",                  // estado inicial
+      buffer: req.file.buffer,
+      alias,
+      status: "pending",
+      securityAnalysis: validationResult
     });
 
     return res.status(201).json({
-      message: "Imagen subida correctamente. Pendiente de aprobación.",
+      message: "Imagen subida correctamente.",
       imageId: newImage._id,
+      security: {
+        status: "passed",
+        fileSize: req.file.size,
+        format: validationResult.format
+      }
     });
+
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: "Ocurrió un error subiendo la imagen." });
+    console.error("Error en uploadImage:", err);
+    return res.status(500).json({ 
+      error: "Error al procesar la imagen.",
+      details: err.message 
+    });
   }
 };
 
-// Obtener todas las imágenes
+async function validateImage(file) {
+  const result = {
+    isValid: true,
+    errors: [],
+    format: null
+  };
+
+  try {
+    // Validar que existe el archivo
+    if (!file || !file.buffer) {
+      result.isValid = false;
+      result.errors.push("Archivo no válido o corrupto");
+      return result;
+    }
+
+    // Validar tamaño
+    if (file.size > 10 * 1024 * 1024) { // 10MB
+      result.isValid = false;
+      result.errors.push("El archivo excede el tamaño máximo permitido (10MB)");
+      return result;
+    }
+
+    // Validar tipo de archivo usando sharp
+    const imageInfo = await sharp(file.buffer).metadata();
+    result.format = imageInfo.format;
+
+    // Validar formato permitido
+    const allowedFormats = ['jpeg', 'jpg', 'png', 'gif'];
+    if (!allowedFormats.includes(imageInfo.format?.toLowerCase())) {
+      result.isValid = false;
+      result.errors.push("Formato de imagen no permitido");
+      return result;
+    }
+
+    // Análisis básico de seguridad
+    try {
+      const metadata = await exiftool.read(file.buffer);
+      if (metadata.Error) {
+        result.isValid = false;
+        result.errors.push("Error en metadatos de la imagen");
+      }
+    } catch (exifError) {
+      console.warn("Error al leer metadatos:", exifError);
+      // No bloqueamos la subida por errores en metadatos
+    }
+
+  } catch (err) {
+    result.isValid = false;
+    result.errors.push("Error al procesar la imagen: " + err.message);
+  }
+
+  return result;
+}
+
+exports.getPendingImages = async (req, res) => {
+  try {
+    const images = await Image.find({ status: "pending" });
+    res.status(200).json(images);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener imágenes pendientes." });
+  }
+};
+
 exports.getAllImages = async (req, res) => {
   try {
     const { status } = req.query;
@@ -45,62 +142,46 @@ exports.getAllImages = async (req, res) => {
   }
 };
 
-// Aprobar o rechazar imagen
 exports.updateImageStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    console.log(`Actualizando imagen con ID: ${id}, nuevo status: ${status}`);
-
-    // Validar el status
     if (!["approved", "rejected"].includes(status)) {
-      return res.status(400).json({ error: "Estado inválido. Debe ser 'approved' o 'rejected'." });
+      return res.status(400).json({ error: "Estado inválido." });
     }
 
-    // Buscar la imagen por ID
     const image = await Image.findById(id);
     if (!image) {
       return res.status(404).json({ error: "Imagen no encontrada." });
     }
 
-    // Si se rechaza, se elimina la metadata y no se guarda en disco
     if (status === "rejected") {
       await Image.findByIdAndDelete(id);
-      console.log(`Imagen ${id} rechazada y eliminada de la BD.`);
-      return res.json({ message: "Imagen rechazada y eliminada correctamente." });
+      return res.json({ message: "Imagen rechazada y eliminada." });
     }
 
-    // Si se aprueba, se valida que exista el buffer
     if (!image.buffer) {
-      return res.status(500).json({ error: "Buffer de la imagen no encontrado." });
+      return res.status(500).json({ error: "Buffer de imagen no encontrado." });
     }
 
-    // Guardar físicamente la imagen en /uploads con nombre basado en el _id
-    const originalExt = path.extname(image.filename); // extraer la extensión (.jpg, .png, etc.)
-    const newFilename = `${image._id}${originalExt}`; // usar el _id como nombre
-    const uploadPath = path.join(__dirname, "..", "uploads", newFilename);
-
+    const uploadPath = path.join(__dirname, "..", "uploads", `${image._id}${path.extname(image.filename)}`);
     fs.writeFileSync(uploadPath, image.buffer);
-    console.log(`Imagen guardada en ${uploadPath}`);
 
-    // Actualizar el estado a 'approved' y la metadata de filename
     image.status = "approved";
-    image.filename = newFilename; // guardamos el nuevo nombre en la BD
+    image.filename = path.basename(uploadPath);
     await image.save();
 
-    console.log("Estado de la imagen actualizado a 'approved'.");
     return res.json({
-      message: "Imagen aprobada y guardada correctamente.",
-      image,
+      message: "Imagen aprobada y guardada.",
+      image
     });
   } catch (err) {
-    console.error("Error al actualizar la imagen:", err);
+    console.error(err);
     return res.status(500).json({ error: "Error al actualizar la imagen." });
   }
 };
 
-// Eliminar una imagen
 exports.deleteImage = async (req, res) => {
   try {
     const { id } = req.params;
@@ -110,11 +191,9 @@ exports.deleteImage = async (req, res) => {
       return res.status(404).json({ error: "Imagen no encontrada." });
     }
 
-    // Eliminar el archivo físicamente si existe
     const imagePath = path.join(__dirname, "..", "uploads", image.filename);
     if (fs.existsSync(imagePath)) {
       fs.unlinkSync(imagePath);
-      console.log(`Archivo ${image.filename} eliminado físicamente.`);
     }
 
     return res.json({ message: "Imagen eliminada correctamente." });

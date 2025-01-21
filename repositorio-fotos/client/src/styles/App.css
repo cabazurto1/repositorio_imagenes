@@ -355,3 +355,256 @@ body {
 .delete-icon:hover {
   background-color: rgb(220, 53, 69);
 }
+
+/* Contenedor del login */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Caja de login */
+.login-box {
+  background-color: #ffffff;
+  padding: 20px 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 300px;
+}
+
+/* Título del login */
+.login-box h2 {
+  margin-bottom: 20px;
+  color: #333333;
+}
+
+/* Campos de entrada */
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* Mensaje de error */
+.error-message {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+/* Página principal - Mejor diseño para botones y encabezado */
+.main-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 80px);
+  text-align: center;
+}
+
+.main-menu h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: #007bff;
+}
+
+.main-menu p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #555;
+}
+
+.main-menu .button-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.main-menu .button {
+  font-size: 1.1rem;
+  padding: 0.8rem 1.5rem;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.main-menu .button:hover {
+  background-color: #0056b3;
+}
+
+/* Página de administrador - Mejor diseño para lista de imágenes */
+.admin-dashboard {
+  padding: 2rem;
+}
+
+.admin-dashboard h2 {
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  color: #007bff;
+  text-align: center;
+}
+
+.admin-dashboard .image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.image-card {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 250px;
+}
+
+.image-card img {
+  max-width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+}
+
+.image-card p {
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+
+.image-card .button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.image-card .approve-button {
+  background-color: #28a745;
+}
+
+.image-card .reject-button {
+  background-color: #dc3545;
+}
+
+/* Página de login - Mejora visual */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #e9ecef;
+}
+
+.login-box {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 300px;
+}
+
+.login-box h2 {
+  margin-bottom: 1.5rem;
+  color: #007bff;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-box button:hover {
+  background-color: #0056b3;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .main-menu h1 {
+    font-size: 2rem;
+  }
+
+  .admin-dashboard .image-gallery {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Previsualización de la imagen cargada */
+.preview-img {
+  width: 100%;
+  max-height: 200px; /* Ajusta la altura máxima */
+  object-fit: cover; /* Escala proporcionalmente sin deformar */
+  border-radius: 0.625rem;
+}
+
+/* Estilos para imágenes en el carrusel */
+.carousel-img {
+  width: 100%;
+  height: 200px; /* Ajusta la altura de las imágenes en el carrusel */
+  object-fit: cover; /* Escala proporcionalmente sin deformar */
+  border-radius: 0.625rem;
+}
+
+/* Flechas del carrusel */
+.custom-slick-arrow {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: rgba(0, 123, 255, 0.8);
+  color: #fff !important;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.25rem;
+  z-index: 2;
+  opacity: 0.8;
+  transition: opacity 0.3s;
+}
+
+.custom-slick-arrow:hover {
+  opacity: 1;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+  .carousel-img {
+    height: 150px; /* Menor altura en pantallas pequeñas */
+  }
+
+  .preview-img {
+    max-height: 150px;
+  }
+}

@@ -1,0 +1,28 @@
+/* Header general */
+.app-header {
+    background: linear-gradient(135deg, #007bff, #4dabf7);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: "Poppins", sans-serif;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .app-header .logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .app-header .logo img {
+    height: 50px;
+    width: 50px;
+  }
+  
+  .app-header .logo h1 {
+    font-size: 2rem;
+    margin: 0;
+  }
+  
