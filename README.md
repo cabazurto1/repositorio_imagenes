@@ -4,6 +4,84 @@ Este proyecto es un **repositorio de imágenes** que permite a usuarios subir fo
 
 ---
 
+# Estructura del Proyecto: Repositorio de Fotos
+
+proyecto:
+  descripcion: >
+    Este proyecto está dividido en dos partes principales: Frontend (client) y Backend (server).
+    A continuación, se detalla la estructura de los directorios y archivos.
+```
+  frontend:
+    descripcion: >
+      Contiene todos los archivos relacionados con la interfaz de usuario.
+    estructura:
+      - dist/: Archivos generados después del build
+      - node_modules/: Dependencias de Node.js para el frontend
+      - public/:
+          - index.html: Punto de entrada HTML del proyecto
+      - src/:
+          - assets/: Recursos estáticos (imágenes, íconos, etc.)
+          - components/: Componentes principales de React
+            - AdminDashboard.jsx
+            - Carousel.jsx
+            - Header.jsx
+            - Login.jsx
+            - MainMenu.jsx
+            - ProtectedRoute.jsx
+            - UploadImage.jsx
+          - styles/: Archivos CSS para los componentes
+            - AdminDashboard.css
+            - App.css
+            - Carousel.css
+            - Header.css
+            - Login.css
+            - MainMenu.css
+            - UploadImage.css
+          - App.jsx: Componente principal del frontend
+          - index.css: Estilos generales del proyecto
+          - main.jsx: Archivo principal que inicializa React
+      - Dockerfile: Archivo para construir la imagen Docker del frontend
+      - .gitignore: Archivos/Directorios ignorados por Git
+      - eslint.config.js: Configuración de ESLint
+      - README.md: Documentación del proyecto
+
+  backend:
+    descripcion: >
+      Contiene todos los archivos relacionados con la lógica del servidor y operaciones backend.
+    estructura:
+      - src/:
+          - controllers/: Controladores del backend
+            - imageController.js
+          - middlewares/: Middlewares para funcionalidades específicas
+            - authMiddleware.js
+            - fileUpload.js
+          - models/: Modelos de la base de datos
+            - Admin.js
+            - Image.js
+          - routes/: Definición de rutas del backend
+            - adminRoutes.js
+            - imageRoutes.js
+          - uploads/: Carpeta para imágenes subidas temporalmente
+            - ejemplo-imagen.png
+          - app.js: Archivo principal del backend
+      - node_modules/: Dependencias de Node.js para el backend
+      - .env: Variables de entorno
+      - docker-compose.yml: Configuración de Docker Compose
+      - Dockerfile: Archivo para construir la imagen Docker del backend
+      - package.json: Configuración y dependencias del proyecto
+      - package-lock.json: Detalles de las dependencias del proyecto
+      - .gitignore: Archivos/Directorios ignorados por Git
+```
+
+caracteristicas:
+  - Frontend: >
+      Desarrollado con React para gestionar la interacción del usuario.
+  - Backend: >
+      Construido con Node.js y Express para gestionar la lógica de negocio y las operaciones relacionadas con las imágenes.
+  - Docker: >
+      Implementación de contenedores para el despliegue del proyecto.
+
+
 ## Estructura de Carpetas
 ```
 repositorio-fotos/
