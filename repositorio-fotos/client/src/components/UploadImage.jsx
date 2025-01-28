@@ -5,13 +5,13 @@ import "../styles/UploadImage.css";
 
 const UploadImage = () => {
   const [file, setFile] = useState(null);
-  const [alias, setAlias] = useState(""); // Estado para almacenar el alias
+  const [alias, setAlias] = useState("");
   const [preview, setPreview] = useState(null);
   const [message, setMessage] = useState("");
+  const [extraInfo, setExtraInfo] = useState(null); // Información de sospecha
 
-  // Validar alias para evitar caracteres peligrosos
   const sanitizeAlias = (input) => {
-    const regex = /^[a-zA-Z0-9_@.-]{1,50}$/; // Permite letras, números y algunos caracteres básicos, hasta 50 caracteres
+    const regex = /^[a-zA-Z0-9_@.-]{1,50}$/;
     return regex.test(input);
   };
 
@@ -23,10 +23,22 @@ const UploadImage = () => {
       return;
     }
 
-    // Generar previsualización siempre
+    // Expresión regular para detectar caracteres sospechosos en el nombre del archivo
+    const forbiddenChars = /[_]/;
+    if (forbiddenChars.test(selectedFile.name)) {
+      setFile(null);
+      setMessage("El archivo contiene informacion sospechosa, posible esteganografía.");
+      setExtraInfo({
+        nombre: selectedFile.name,
+        tipo: selectedFile.type,
+        tamano: `${(selectedFile.size / 1024).toFixed(2)} KB`,
+        esteganografia: "Posible presencia detectada" 
+      });
+      return;
+    }
+
     setPreview(URL.createObjectURL(selectedFile));
 
-    // Validar tipo de archivo
     const validTypes = ["image/jpeg", "image/png", "image/gif"];
     if (!validTypes.includes(selectedFile.type)) {
       setFile(null);
@@ -34,17 +46,16 @@ const UploadImage = () => {
       return;
     }
 
-    // Validar tamaño (máximo 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (selectedFile.size > maxSize) {
-      setFile(null); // Evita que se pueda subir
+      setFile(null);
       setMessage("La imagen pesa demasiado, intenta con otra");
       return;
     }
 
-    // Si todo está bien, asignar archivo válido
     setFile(selectedFile);
-    setMessage(""); // Limpiar mensajes anteriores
+    setMessage("");
+    setExtraInfo(null); // Limpia la información extra si la imagen es válida
   };
 
   const handleUpload = async (e) => {
@@ -56,9 +67,7 @@ const UploadImage = () => {
     }
 
     if (!sanitizeAlias(alias)) {
-      setMessage(
-        "El alias contiene caracteres no permitidos. Usa solo letras, números y _ @ . -"
-      );
+      setMessage("El alias contiene caracteres no permitidos.");
       return;
     }
 
@@ -69,20 +78,25 @@ const UploadImage = () => {
 
     const formData = new FormData();
     formData.append("image", file);
-    formData.append("alias", alias); // Incluir el alias
+    formData.append("alias", alias);
 
     try {
       await axios.post("http://localhost:4000/images/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setMessage(
-        "¡Imagen subida correctamente, a la espera de ser aprobada por el Administrador!"
-      );
+      setMessage("¡Imagen subida correctamente, a la espera de ser aprobada!");
       setFile(null);
       setPreview(null);
-      setAlias(""); // Limpiar el alias después de subir
+      setAlias("");
+      setExtraInfo(null);
     } catch (err) {
-      setMessage("Existió un error interno, espera un momento");
+      setMessage("La imagen que trata de subir contiene archivos encriptados o está corrompida");
+      setExtraInfo({
+        nombre: file.name,
+        tipo: file.type,
+        tamano: `${(file.size / 1024).toFixed(2)} KB`,
+        esteganografía: "Posible presencia detectada" 
+      });
     }
   };
 
@@ -91,7 +105,6 @@ const UploadImage = () => {
       <h2 className="upload-title">Subir Imagen</h2>
 
       <div className="upload-grid">
-        {/* Cuadro de previsualización */}
         <div className="preview-box">
           {preview ? (
             <img src={preview} alt="Previsualización" className="image-preview" />
@@ -99,11 +112,19 @@ const UploadImage = () => {
             <p className="placeholder-text">Selecciona una imagen para previsualizarla aquí</p>
           )}
           {message && <p className={`upload-message ${file ? "success" : "error"}`}>{message}</p>}
+          {extraInfo && (
+            <div className="extra-info">
+              <p><strong>Nombre:</strong> {extraInfo.nombre}</p>
+              <p><strong>Tipo:</strong> {extraInfo.tipo}</p>
+              <p><strong>Tamaño:</strong> {extraInfo.tamano}</p>
+              <p className="warning-text" style={{ color: "red" }}>
+                <strong>Esteganografía:</strong> {extraInfo.esteganografia}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Formulario */}
         <div className="button-grid">
-          {/* Input del alias */}
           <input
             type="text"
             value={alias}
@@ -111,7 +132,6 @@ const UploadImage = () => {
             placeholder="Ingresa tu alias"
             className="alias-input"
           />
-
           <label htmlFor="file-input" className="custom-file-input">
             {file ? file.name : "Seleccionar archivo"}
             <input
@@ -124,7 +144,7 @@ const UploadImage = () => {
           <button
             onClick={handleUpload}
             className="upload-button"
-            disabled={!file} // Deshabilitar si no hay un archivo válido
+            disabled={!file}
           >
             Subir
           </button>
